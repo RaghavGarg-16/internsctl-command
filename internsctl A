@@ -1,0 +1,127 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+	echo "Please provide subcommand: check --help section"
+	exit
+fi
+
+# Show version
+if [ $1 == "--version" ]; then
+	echo "v0.1.0"
+fi
+
+
+# Help section
+if [ $1 == "--help" ]; then
+	printf "  cpu                 "
+	echo "All operations related to CPU"
+	echo "  subcommand options:"
+	printf "    getinfo                 "
+	echo "Get current info of CPU"
+	echo
+	printf "  user                 "
+	echo "All operations related to user"
+	echo "  subcommand options:"
+	printf "    create USERNAME                 "
+	echo "Create a new user with given username"
+	printf "    list                 "
+	echo "List all the users"
+	echo "  flags"
+	printf  "    --sudo-only                 "
+	echo "List users with sudo permissions only"
+	echo
+	printf "  file                 "
+	echo "All operations related to files"
+	echo "  subcommand options:"
+	printf "    getinfo FILENAME                "
+	echo "Get all information related to FILENAME"
+	echo "  flags"
+	printf  "    --permissions, -p                 "
+	echo "Show only permissions of the FILENAME"
+	printf  "    --last-modified, -m                 "
+	echo "Show last modified date and time of FILENAME"
+	printf  "    --owner, -o                 "
+	echo "Show owner name of FILENAME"
+	printf  "    --size, -s                 "
+	echo "Show size of FILENAME In bytes"
+fi
+
+
+# Part 1 (Level easy)
+if [ $1 == "cpu" ]; then
+	if [ $# == 2 ] && [ $2 == "getinfo" ] ; then
+		lscpu
+	else
+		echo "Invalid Option: $2 (Do you mean $0 $1 getinfo)"
+	fi
+fi
+
+# Part 2 (Level intermediate)
+if [ $1 == "user" ]; then
+	if [ $# -lt 2 ]; then
+		echo "Please provide further option - (create, list [--sudo-only])"
+		exit
+	fi
+
+	if [ $# == 3 ] && [ $2 == "create" ]; then
+		useradd $3
+	else 
+		if [ $# -gt 1 ] && [ $2 == "list" ]; then
+			if [ $# == 3 ] && [ $3 == "--sudo-only" ] ; then
+				echo root
+				cat /etc/group | grep wheel | cut -d ":" -f 4
+			else
+				cat /etc/passwd | cut -d ":" -f 1
+			fi
+		else
+			echo "Error in command: check --help section"
+		fi
+	fi
+fi
+
+# Part 3 (Level advanced)
+if [ $1 == "file" ]; then
+	if [ $# -gt 2 ] && [ $2 == "getinfo" ] ; then
+		ls ${@: -1} > /dev/null 2> /dev/null
+			
+		if [ $? != 0 ]; then
+			echo "File ${@: -1} do not exist"
+		else
+			if [ $# == 3 ]; then
+				printf "%10s \t" Name:
+				echo $(ls ${@: -1})
+			fi
+
+			if [ $# == 3 ] || [ $3 == "--permissions" ] || [ $3 == "-p" ]; then
+				if [ $# == 3 ]; then
+					printf "%10s \t" Access:
+				fi
+				ls -la ${@: -1} | cut -d " " -f 1
+			fi
+
+			if [ $# == 3 ] || [ $3 == "--size" ] || [ $3 == "-s" ]; then
+				if [ $# == 3 ]; then
+					printf "%10s \t" "Size(B):"
+				fi
+				ls -la ${@: -1} | cut -d " " -f 5
+			fi
+
+			if [ $# == 3 ] || [ $3 == "--owner" ] || [ $3 == "-o" ]; then
+				if [ $# == 3 ]; then
+					printf "%10s \t" Owner:
+				fi
+				ls -la ${@: -1} | cut -d " " -f 3
+			fi
+
+			if [ $# == 3 ] || [ $3 == "--last-modified" ] || [ $3 == "-m" ]; then
+				if [ $# == 3 ]; then
+					printf "%10s \t" Modify:
+				fi
+				stat ${@: -1} | grep Modify | cut -d " " -f 2,3,4
+			fi
+		fi
+	else
+		echo "Invalid Option: $2 (Do you mean $0 $1 getinfo)"
+	fi
+	exit
+fi
