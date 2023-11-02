@@ -1,5 +1,5 @@
 .\" Manpage for internsctl.
-.TH man 8 "12 Oct 2023" "0.1.0" "internsctl man page"
+.TH man 8 "2 Nov 2023" "0.1.0" "internsctl man page"
 .SH NAME
 internsctl \- A placement project
 .SH SYNOPSIS
