@@ -39,6 +39,6 @@ internsctl cpu getinfo - prints the all information related to CPU
 
 internsctl file getinfo abc.txt - prints everything about file abc.txt
 
-internsctl create alex - create new user with name "alex"
+internsctl create crafter - create new user with name "crafter"
 .SH AUTHOR
 NAME
